@@ -1,0 +1,31 @@
+.gamelobby {
+    border: 5px solid darkgoldenrod;
+    border-radius: 10px;
+    padding: 5px;
+    background-color: goldenrod;
+    margin: 5px;
+    font: 30px bold sans-serif;
+    font-family: "Signika";
+}
+
+.greenbutton {
+    border: 5px solid darkgreen;
+    border-radius: 10px;
+    padding: 5px;
+    background-color: yellowgreen;
+    margin: 5px;
+    cursor: pointer;
+    font: 30px bold sans-serif;
+    font-family: "Signika";
+}
+
+.graybutton {
+    border: 5px solid gray;
+    border-radius: 10px;
+    padding: 5px;
+    background-color: darkgray;
+    margin: 5px;
+    cursor: not-allowed;
+    font: 30px bold sans-serif;
+    font-family: "Signika";
+}

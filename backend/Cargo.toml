@@ -1,0 +1,19 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "web"
+path = "src/main.rs"
+
+
+[dependencies]
+rocket = { version = "=0.5.0-rc.3", features = ["json"] }
+uiv2 = { path = "../uiv2" }
+mysql = "23.0.1"
+rand = "0.8.5"
+serde = "1.0.160"
+serde_json = "1.0.96"
+r2d2_mysql = "23.0.0"
+r2d2 = "0.8.10"

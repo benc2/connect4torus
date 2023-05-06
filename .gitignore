@@ -1,0 +1,4 @@
+.vscode
+/backend/pwd.txt
+/target
+*.sql

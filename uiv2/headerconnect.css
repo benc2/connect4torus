@@ -1,0 +1,30 @@
+:root {
+    --background-color: rgb(191, 240, 247);
+    --lightred: indianred;
+    /* --red: firebrick; */
+    --red: indianred;
+    --darkred: darkred;
+    --lightblue: steelblue;
+    /* --blue: rgb(56, 58, 171); */
+    --blue: steelblue;
+    /*darkslateblue;*/
+    --darkblue: darkblue;
+    font: 30px bold sans-serif;
+    font-family: "Signika";
+}
+
+h1 {
+    font: bold 60px sans-serif;
+    font-family: "Righteous", sans-serif;
+}
+
+body {
+    background-color: var(--background-color);
+}
+
+.mainpage {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100dvw;
+}

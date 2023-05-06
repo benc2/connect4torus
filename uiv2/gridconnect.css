@@ -1,0 +1,74 @@
+.grid {
+    display: grid;
+    /* grid-auto-columns: auto; */
+    /* grid-auto-flow: column; */
+    /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
+    grid-template-columns: repeat(7, fit-content(100%));
+}
+
+.grid-item {
+    background-color: rgba(64, 185, 246, 0.8);
+    /* background-color: rgba(255, 255, 255, 0.8); */
+    /* border: 1px solid rgba(0, 0, 0, 0.8); */
+    font-size: 15px;
+    white-space: pre-line;
+}
+
+.column {
+    display: grid;
+    grid-template-columns: fit-content(100%);
+    padding: 0px;
+    border: 0px;
+    background-color: transparent;
+}
+
+.cell {
+    background-color: rgba(0, 0, 0, 0);
+    /*var(--background-color); */
+    padding: 0px;
+
+    /* gets rid of empty line below svg*/
+    line-height: 0px;
+    /* margin: 1px; */
+}
+
+.block {
+    -webkit-filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, .7));
+    filter: drop-shadow(3px 3px 2px rgba(0, 0, 0, .7));
+    fill: goldenrod;
+}
+
+.frame {
+    /* display: flex; */
+    width: fit-content;
+    height: auto;
+    background-color: goldenrod;
+    border: 7px solid darkgoldenrod;
+    border-radius: 30px;
+    padding: 20px;
+}
+
+.smallblock {
+    width: fit-content;
+    height: auto;
+    background-color: goldenrod;
+    border: 5px solid;
+    border-color: darkgoldenrod;
+    border-radius: 10px;
+    padding: 10px;
+    margin: 10px;
+    font: 30px bold sans-serif;
+    font-family: "Signika";
+}
+
+.red {
+    background-color: var(--lightred);
+    border-color: var(--darkred);
+    /* color: white; */
+}
+
+.blue {
+    background-color: var(--lightblue);
+    border-color: var(--darkblue);
+    /* color: white; */
+}
