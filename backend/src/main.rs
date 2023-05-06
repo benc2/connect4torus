@@ -322,7 +322,7 @@ fn gamedata(game_id: u64, pool: &State<Pool>) -> String {
 #[launch]
 fn rocket() -> _ {
     let pwd = fs::read_to_string("pwd.txt").unwrap();
-    let url = format!("mysql://root:{}@localhost:3306/thisdb", pwd);
+    let url = format!("mysql://root:{}@localhost:3306/connect_torus_db", pwd);
     let pool = Pool::new(url.as_str()).expect("failed to create pool");
     // let mut conn = pool
     //     .get_conn()
