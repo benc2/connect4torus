@@ -1,5 +1,7 @@
 use crate::cookies::get_player_id;
+use crate::IdType;
 use crate::{database::get_object, Board, BoardView, Player};
+use gloo_timers::callback::Timeout;
 use reqwasm::http::Request;
 use serde::{Deserialize, Serialize};
 use std::{cell::RefCell, collections::HashSet, rc::Rc};
@@ -9,14 +11,14 @@ use yew::prelude::*;
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize, Properties)]
 pub struct GameData {
     // TODO change usizes to fixed size (in Board too!)
-    pub game_id: u64,
+    pub game_id: IdType,
     pub board: Board,
     pub win_length: u8,
     pub turn_player: Player,
     pub win_status: Option<Player>,
     pub winning_chips: Option<HashSet<(usize, usize)>>,
-    pub player1_id: u64,
-    pub player2_id: u64,
+    pub player1_id: IdType,
+    pub player2_id: IdType,
 }
 
 impl GameData {
@@ -24,9 +26,9 @@ impl GameData {
         width: u8,
         height: u8,
         win_length: u8,
-        game_id: u64,
-        player1_id: u64,
-        player2_id: u64,
+        game_id: IdType,
+        player1_id: IdType,
+        player2_id: IdType,
     ) -> Self {
         Self {
             game_id,
@@ -40,7 +42,14 @@ impl GameData {
         }
     }
 
-    fn turn_player_id(&self) -> u64 {
+    // pub fn new_round(gamedata: GameData) {
+    //     Self {
+    //         board: Board::new(gamedata.board.width, gamedata.board.height),
+    //         turn_player: gamedata.
+    //     }
+    // }
+
+    fn turn_player_id(&self) -> IdType {
         match self.turn_player {
             Player::One => self.player1_id,
             Player::Two => self.player2_id,
@@ -83,11 +92,12 @@ pub enum ConnectMsg {
     SetFetchState(FetchGameData),
     Reset,
     GetData,
+    Tick,
 }
 
 #[derive(PartialEq, Properties)]
 pub struct ConnectProps {
-    pub game_id: u64,
+    pub game_id: IdType,
 }
 
 pub struct ConnectGame {
@@ -115,6 +125,7 @@ impl Component for ConnectGame {
     type Properties = ConnectProps; // maybe win_length should be in here to properly pass to board?
 
     fn create(ctx: &Context<Self>) -> Self {
+        ctx.link().send_message(ConnectMsg::Tick);
         Self {
             fetch_game_data: FetchGameData::NotFetching,
             game_data_cache: GameData::new(
@@ -186,7 +197,7 @@ impl Component for ConnectGame {
 
     // #[cfg(target_arch = "wasm32")]
     fn update(&mut self, ctx: &Context<Self>, msg: Self::Message) -> bool {
-        // let id_state = use_state(|| 0u64);
+        // let id_state = use_state(|| 0IdType);
         // let id_storage = Rc::new(RefCell::new(0));
         // let id_storage_clone = id_storage.clone();
         // spawn_local(async move {
@@ -198,7 +209,7 @@ impl Component for ConnectGame {
         //         .text()
         //         .await
         //         .unwrap();
-        //     let id: u64 = id_string.parse().unwrap();
+        //     let id: IdType = id_string.parse().unwrap();
         //     id_storage_clone.replace(id);
         // });
         // let id = *id_storage.borrow();
@@ -207,6 +218,9 @@ impl Component for ConnectGame {
         match msg {
             ConnectMsg::SetFetchState(state) => {
                 self.fetch_game_data = state;
+                if let FetchGameData::Success(game_data) = &self.fetch_game_data {
+                    self.game_data_cache = game_data.clone();
+                }
             }
 
             ConnectMsg::ColumnClick(colnr) => {
@@ -309,6 +323,19 @@ impl Component for ConnectGame {
                         Err(_) => SetFetchState(FetchGameData::Failed),
                     }
                 });
+            }
+
+            ConnectMsg::Tick => {
+                let set_not_fetching = ctx
+                    .link()
+                    .callback(|_| ConnectMsg::SetFetchState(FetchGameData::NotFetching));
+                let retick = ctx.link().callback(|_| ConnectMsg::Tick);
+                let timeout = Timeout::new(1000, move || {
+                    // cause update every second
+                    set_not_fetching.emit(());
+                    retick.emit(());
+                });
+                timeout.forget();
             }
         }
         true

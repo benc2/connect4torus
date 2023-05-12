@@ -3035,6 +3035,7 @@ dependencies = [
  "async-std",
  "futures",
  "getrandom",
+ "gloo-timers",
  "log",
  "rand",
  "reqwasm",

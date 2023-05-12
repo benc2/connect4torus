@@ -1,7 +1,8 @@
 use serde::{Deserialize, Serialize};
-use yew_router::{navigator, prelude::use_navigator};
+use yew_router::prelude::use_navigator;
 // use surf;
 use crate::cookies::get_player_id;
+use crate::IdType;
 use crate::{database::get_object, Pages};
 use reqwasm::http::Request;
 use wasm_bindgen_futures::spawn_local;
@@ -9,9 +10,9 @@ use yew::prelude::*;
 
 #[derive(PartialEq, Properties, Clone, Serialize, Deserialize, Debug)]
 pub struct GameLobby {
-    pub game_id: u64,
-    pub player1_id: Option<u64>,
-    pub player2_id: Option<u64>,
+    pub game_id: IdType,
+    pub player1_id: Option<IdType>,
+    pub player2_id: Option<IdType>,
     pub game_name: String, // TODO: yew recommends using their AttrValue instead
     // password: String
     pub game_started: bool,

@@ -1,3 +1,4 @@
+use crate::IdType;
 use crate::{connectgame::GameData, gamelist::GameLobby, Pages};
 use reqwasm::http::Request;
 use wasm_bindgen_futures::spawn_local;
@@ -6,7 +7,7 @@ use yew_router::prelude::*;
 
 #[derive(PartialEq, Properties)]
 pub struct GameLobbyProps {
-    pub game_id: u64,
+    pub game_id: IdType,
 }
 
 // #[function_component]
@@ -110,17 +111,6 @@ pub fn GameLobbyView(game_lobby_props: &GameLobbyProps) -> Html {
             //     .unwrap();
             // gamelobby_state.set(Some(gamelobby));
 
-            log::info!(
-                "JSON analysis: {}",
-                Request::get(&format!("/api/gamelobby/{}", game_id))
-                    .send()
-                    .await
-                    .unwrap()
-                    .text()
-                    .await
-                    .unwrap()
-            );
-
             let gamelobby_result: Result<GameLobby, _> =
                 Request::get(&format!("/api/gamelobby/{}", game_id))
                     .send()
@@ -162,6 +152,12 @@ pub fn GameLobbyView(game_lobby_props: &GameLobbyProps) -> Html {
                     gamelobby.player1_id.unwrap(), // is safe due to startable check
                     gamelobby.player2_id.unwrap(),
                 );
+
+                log::info!(
+                    "JSON analysis: {}",
+                    serde_json::to_string(&gamedata).unwrap()
+                );
+
                 spawn_local(async move {
                     Request::post("/api/create_game")
                         .body(serde_json::to_string(&gamedata).unwrap())

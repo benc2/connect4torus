@@ -18,11 +18,12 @@ use uiv2::Player; // uiv2 is now a lib which might be a bit of a hack
                   // but wrapper classes are annoying and ugly
 use uiv2::connectgame::GameData;
 use uiv2::gamelist::{GameList, GameLobby};
+use uiv2::IdType;
 
 #[get("/")]
 async fn index(cookies: &CookieJar<'_>) -> Result<NamedFile, NotFound<String>> {
     if cookies.get("session_id").is_none() {
-        cookies.add(Cookie::build("session_id", rand::random::<usize>().to_string()).finish())
+        cookies.add(Cookie::build("session_id", rand::random::<IdType>().to_string()).finish())
     }
     // get_index().await
     NamedFile::open("../uiv2/dist/index.html")
@@ -103,7 +104,7 @@ async fn getgamelist(pool: &State<Pool>) -> Result<String, String> {
 }
 
 #[get("/get_joinable_lobbies/<player_id>")]
-async fn get_joinable_lobbies(player_id: u64, pool: &State<Pool>) -> Result<String, String> {
+async fn get_joinable_lobbies(player_id: IdType, pool: &State<Pool>) -> Result<String, String> {
     let filter = &format!(
         "(player1_id is null or player2_id is null) and (player1_id != {p} or player2_id != {p})",
         p = player_id
@@ -112,13 +113,13 @@ async fn get_joinable_lobbies(player_id: u64, pool: &State<Pool>) -> Result<Stri
 }
 
 #[get("/get_joined_lobbies/<player_id>")]
-async fn get_joined_lobbies(player_id: u64, pool: &State<Pool>) -> Result<String, String> {
+async fn get_joined_lobbies(player_id: IdType, pool: &State<Pool>) -> Result<String, String> {
     let filter = &format!("player1_id = {p} or player2_id = {p}", p = player_id);
     get_lobbies(filter, pool).await
 }
 
 #[get("/gamelobby/<game_id>")]
-async fn getgamelobby(game_id: u64, pool: &State<Pool>) -> Result<String, String> {
+async fn getgamelobby(game_id: IdType, pool: &State<Pool>) -> Result<String, String> {
     let query = format!(
         "SELECT player1_id, player2_id, game_name, game_started from gamelist WHERE game_id = {}",
         game_id
@@ -152,20 +153,20 @@ async fn getgamelobby(game_id: u64, pool: &State<Pool>) -> Result<String, String
 #[post("/create_game_lobby", data = "<game_name>")]
 fn create_game_lobby(game_name: String, cookies: &CookieJar<'_>, pool: &State<Pool>) -> String {
     // if cookies.get("session_id").is_none() {
-    //     cookies.add(Cookie::build("session_id", rand::random::<usize>().to_string()).finish())
+    //     cookies.add(Cookie::build("session_id", rand::random::<IdType>().to_string()).finish())
     // }
     let session_id_string = match cookies.get("session_id") {
         Some(cookie) => cookie.value().to_owned(),
         None => {
-            let random_id = rand::random::<usize>().to_string();
+            let random_id = rand::random::<IdType>().to_string();
             cookies.add(Cookie::build("session_id", random_id.clone()).finish());
             random_id
         }
     };
     let mut conn = pool.inner().get_conn().unwrap();
-    let session_id: u64 = session_id_string.parse().unwrap();
+    let session_id: IdType = session_id_string.parse().unwrap();
     let new_game_lobby = GameLobby {
-        game_id: rand::random::<u64>(),
+        game_id: rand::random::<IdType>(),
         player1_id: Some(session_id),
         player2_id: None,
         // game_name: form.game_name.to_owned(),
@@ -190,7 +191,7 @@ fn create_game_lobby(game_name: String, cookies: &CookieJar<'_>, pool: &State<Po
 
 // #[derive(FromForm)]
 // struct GameIdForm {
-//     game_id: u64,
+//     game_id: IdType,
 // }
 
 // #[post("/join", data = "<game_id_form>")]
@@ -211,7 +212,7 @@ fn getid(cookies: &CookieJar<'_>) -> String {
     match cookies.get("session_id") {
         Some(cookie) => cookie.value().to_owned(),
         None => {
-            let random_id = rand::random::<usize>().to_string();
+            let random_id = rand::random::<IdType>().to_string();
             cookies.add(Cookie::build("session_id", random_id.clone()).finish());
             random_id
         }
@@ -219,7 +220,7 @@ fn getid(cookies: &CookieJar<'_>) -> String {
 }
 
 #[get("/join/<game_id>")]
-fn join(game_id: u64, pool: &State<Pool>, cookies: &CookieJar<'_>) -> String {
+fn join(game_id: IdType, pool: &State<Pool>, cookies: &CookieJar<'_>) -> String {
     let mut conn = pool.inner().get_conn().unwrap();
     match conn.exec_drop(
         "UPDATE gamelist SET player2_id = :player2_id WHERE game_id=:game_id",
@@ -251,6 +252,7 @@ fn save_game(gamedata_json: Json<GameData>, pool: &State<Pool>) {
 
 #[post("/create_game", data = "<gamedata_json>")]
 fn create_game(gamedata_json: Json<GameData>, pool: &State<Pool>) {
+    println!("Received JSON: {:?}", gamedata_json);
     let Json(gamedata) = gamedata_json;
     let mut conn = pool.inner().get_conn().unwrap();
     let turn_player_num: u8 = gamedata.turn_player.into();
@@ -271,8 +273,13 @@ fn create_game(gamedata_json: Json<GameData>, pool: &State<Pool>) {
     .unwrap();
 }
 
+// #[post("/create_game", data = "<gamedata_json>")]
+// fn create_game(gamedata_json: String) {
+//     println!("{}", gamedata_json);
+// }
+
 #[get("/gamedata/<game_id>")]
-fn gamedata(game_id: u64, pool: &State<Pool>) -> String {
+fn gamedata(game_id: IdType, pool: &State<Pool>) -> String {
     let mut conn = pool.inner().get_conn().unwrap();
     let results = conn
         .query_map(

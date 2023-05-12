@@ -23,6 +23,8 @@ mod notfound;
 use notfound::NotFoundPage;
 pub mod cookies;
 
+pub type IdType = u32;
+
 #[derive(PartialEq, Clone, Debug, Serialize, Deserialize)]
 
 pub enum Player {
@@ -68,7 +70,7 @@ pub enum Pages {
     #[at("/")]
     HomePage,
     #[at("/game/:game_id")]
-    Game { game_id: u64 },
+    Game { game_id: IdType },
     #[at("/gamelist")]
     GameList,
     #[at("/lobby/:game_id")]
@@ -100,7 +102,7 @@ fn switch(routes: Pages) -> Html {
         Pages::GameList => html! { <GameListView/>},
         Pages::Game { game_id } => html! {<ConnectGame game_id={game_id}/>},
         Pages::Lobby { game_id } => {
-            html! {<GameLobbyView game_id = {game_id.parse::<u64>().unwrap()}/>}
+            html! {<GameLobbyView game_id = {game_id.parse::<IdType>().unwrap()}/>}
         }
         Pages::Local => html! {<LocalGame/>},
         Pages::NotFound => html! {<NotFoundPage/>},
