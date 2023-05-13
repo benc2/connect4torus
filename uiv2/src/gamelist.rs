@@ -133,19 +133,25 @@ impl Component for GameListView {
             Fetching => html! {"fetching open games"},
             Success((joined_gamelist, joinable_gamelist)) => html! {
             <>
-            <h2>{"Continue playing"}</h2>
-            {joined_gamelist
-            .games
-            .iter()
-            .map(|game| html! {<GameLobbyBlock gamelobby={game.clone()} mode={LobbyMode::Open}/>})
-            .collect::<Html>()}
-
-            <h2>{"Join a game"}</h2>
-            {joinable_gamelist
+            if joined_gamelist.games.len() > 0 {
+                <h2>{"Continue playing"}</h2>
+                {joined_gamelist
                 .games
                 .iter()
-                .map(|game| html! {<GameLobbyBlock gamelobby={game.clone()} mode={LobbyMode::Join}/>})
+                .map(|game| html! {<GameLobbyBlock gamelobby={game.clone()} mode={LobbyMode::Open}/>})
                 .collect::<Html>()}
+            }
+
+            <h2>{"Join a game"}</h2>
+            if joinable_gamelist.games.len() > 0 {
+                {joinable_gamelist
+                    .games
+                    .iter()
+                    .map(|game| html! {<GameLobbyBlock gamelobby={game.clone()} mode={LobbyMode::Join}/>})
+                    .collect::<Html>()}}
+            else {
+                <p> {"There aren't any open games. Go to the homepage to create a new one!"} </p>
+            }
             </>},
             Failed => html! {"Failed to get the data. Please refresh to try again"},
         }
